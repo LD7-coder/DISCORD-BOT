@@ -67,7 +67,7 @@ client.on('messageCreate', async message => {
 });
 
 // Enviar pregunta semanal
-cron.schedule('0 8 * * 1', async () => {
+cron.schedule('0 11 * * *', async () => {
   try {
     const res = await db.query('SELECT id, texto FROM preguntas');
     if (res.rows.length === 0) return console.log('No hay preguntas disponibles.');
@@ -90,7 +90,7 @@ cron.schedule('0 8 * * 1', async () => {
     }
   } catch (err) {
     console.error('❌ Error al crear la pregunta semanal:', err);
-  }
+  } 
 });
 
 // Sorpresa aleatoria (~20% de probabilidad diaria)
