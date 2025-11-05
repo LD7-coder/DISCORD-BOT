@@ -119,3 +119,5 @@ client.once('ready', async () => {
 });
 
 client.login(TOKEN);
+console.log('🔍 Variables disponibles:');
+console.log(Object.keys(process.env).filter(v => v.includes('DATABASE') || v.includes('BOT')));
