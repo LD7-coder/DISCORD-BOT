@@ -1,15 +1,23 @@
+// bot.js
+require('dotenv').config(); // carga .env en desarrollo (no obligatorio en producción)
 const fs = require('fs');
 const { Client, GatewayIntentBits, ChannelType } = require('discord.js');
 const cron = require('node-cron');
-const token = require('./token.js');
 
-const client = new Client({ 
+// USAR LA VARIABLE DE ENTORNO BOT_TOKEN
+const TOKEN = process.env.BOT_TOKEN;
+
+if (!TOKEN) {
+  console.error('Error: BOT_TOKEN no está definido en las variables de entorno.');
+  process.exit(1);
+}
+
+const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
 
-const TOKEN = token.token;
-const CANAL_COMANDOS_ID = '1427717887132565664';
-const CANAL_ID = '1427719052348096584'; // Asegúrate de que sea el ID del canal de tipo FORO
+const CANAL_COMANDOS_ID = '1427355836455325828';
+const CANAL_ID = '1427357947465564190'; // ID del canal/foro donde publicar
 
 function leerPreguntas() {
   const data = fs.readFileSync('preguntas.json', 'utf-8');
@@ -38,12 +46,12 @@ client.on('messageCreate', message => {
     preguntas.push(pregunta);
     guardarPreguntas(preguntas);
 
-    message.reply('Pregunta agregada ✅');
+    message.reply('Pregunta agregada :)');
   }
 });
 
-// Cron job: cada lunes a las 10:00 (hora del servidor)
-cron.schedule('0 8 * * *', async () => {
+// Cron: pregunta semanal (ejemplo: Lunes 8:00)
+cron.schedule('0 8 * * 1', async () => {
   const preguntas = leerPreguntas();
   if (preguntas.length === 0) return console.log('No hay preguntas disponibles.');
 
@@ -55,22 +63,49 @@ cron.schedule('0 8 * * *', async () => {
     const canal = await client.channels.fetch(CANAL_ID);
     if (canal && canal.type === ChannelType.GuildForum) {
       await canal.threads.create({
-        name: `PREGUNTA SEMANA: ${pregunta.substring(0, 90)}`, 
-        message: {
-          content: `📢 **Pregunta de la semana:**\n${pregunta}`
-        }
+        name: `PREGUNTA SEMANA: ${pregunta.substring(0, 90)}`,
+        message: { content: `**Pregunta del día**\n${pregunta}` }
       });
-      console.log('Post creado correctamente en el foro.');
+      console.log('✅ Post de pregunta semanal creado.');
+    } else if (canal) {
+      await canal.send(`📢 **Pregunta del día:**\n${pregunta}`);
+      console.log('✅ Mensaje de pregunta enviado (canal normal).');
     } else {
-      console.error('El canal no es de tipo foro o no se pudo obtener.');
+      console.error('❌ No se pudo obtener el canal.');
     }
   } catch (err) {
-    console.error('No se pudo crear el post en el foro:', err);
+    console.error('❌ No se pudo crear el post en el foro:', err);
+  }
+}, { scheduled: true });
+
+// Cron: SORPRESA aleatoria (~25% diario -> ~1-2 veces/semana)
+cron.schedule('0 10 * * *', async () => {
+  const probabilidad = Math.random();
+  if (probabilidad <= 0.20) {
+    try {
+      const canal = await client.channels.fetch(CANAL_ID);
+      if (canal && canal.type === ChannelType.GuildForum) {
+        await canal.threads.create({
+          name: '🎉 SORPRESA 🎉',
+          message: { content: 'FUCKING LUIS ENRIQUE!!!!!' }
+        });
+        console.log('🎉 Mensaje sorpresa publicado (foro).');
+      } else if (canal) {
+        await canal.send('FUCKING LUIS ENRIQUE!!!!!!');
+        console.log('🎉 Mensaje sorpresa enviado (canal normal).');
+      } else {
+        console.error('❌ No se pudo obtener el canal para la sorpresa.');
+      }
+    } catch (err) {
+      console.error('❌ Error al publicar sorpresa:', err);
+    }
+  } else {
+    console.log('No hay sorpresa hoy 🎲');
   }
 }, { scheduled: true });
 
 client.once('ready', () => {
-  console.log(`Bot listo! Conectado como ${client.user.tag}`);
+  console.log(`🤖 Bot listo! Conectado como ${client.user.tag}`);
 });
 
 client.login(TOKEN);
