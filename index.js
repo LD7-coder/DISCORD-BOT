@@ -1,5 +1,4 @@
 // index.js
-require('dotenv').config();
 const { Client } = require('pg');
 const fs = require('fs');
 const { Client: DiscordClient, GatewayIntentBits, ChannelType } = require('discord.js');
