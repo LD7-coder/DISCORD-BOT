@@ -10,6 +10,8 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 console.log(`🔑 BOT_TOKEN está definido: ${!!TOKEN}`);
 console.log(`🗄️ DATABASE_URL está definido: ${!!DATABASE_URL}`);
+console.log('🔍 Variables disponibles:');
+console.log(Object.keys(process.env).filter(v => v.includes('DATABASE') || v.includes('BOT')));
 
 if (!TOKEN || !DATABASE_URL) {
   console.error('❌ Faltan variables de entorno (BOT_TOKEN o DATABASE_URL)');
@@ -119,5 +121,4 @@ client.once('ready', async () => {
 });
 
 client.login(TOKEN);
-console.log('🔍 Variables disponibles:');
-console.log(Object.keys(process.env).filter(v => v.includes('DATABASE') || v.includes('BOT')));
+
