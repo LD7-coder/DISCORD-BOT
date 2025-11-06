@@ -67,7 +67,7 @@ client.on('messageCreate', async message => {
 });
 
 // Enviar pregunta semanal
-cron.schedule('0 11 * * *', async () => {
+cron.schedule('0 11 * * 1', async () => {
   try {
     const res = await db.query('SELECT id, texto FROM preguntas');
     if (res.rows.length === 0) return console.log('No hay preguntas disponibles.');
@@ -81,11 +81,11 @@ cron.schedule('0 11 * * *', async () => {
     if (canal && canal.type === ChannelType.GuildForum) {
       await canal.threads.create({
         name: `PREGUNTA SEMANA: ${pregunta.texto.substring(0, 90)}`,
-        message: { content: `📢 **Pregunta del dia:**\n${pregunta.texto}` }
+        message: { content: `📢 **Pregunta de la semana:**\n${pregunta.texto}` }
       });
       console.log('✅ Pregunta publicada en foro');
     } else if (canal) {
-      await canal.send(`📢 **Pregunta del dia:**\n${pregunta.texto}`);
+      await canal.send(`📢 **Pregunta de la semana:**\n${pregunta.texto}`);
       console.log('✅ Pregunta enviada al canal normal');
     }
   } catch (err) {
