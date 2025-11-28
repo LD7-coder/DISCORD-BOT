@@ -79,10 +79,14 @@ cron.schedule('0 11 * * 1', async () => {
 
     const canal = await client.channels.fetch(CANAL_ID);
     if (canal && canal.type === ChannelType.GuildForum) {
+
+      const titulo = `PREGUNTA SEMANA: ${pregunta.texto}`;
+
       await canal.threads.create({
-        name: `PREGUNTA SEMANA: ${pregunta.texto.substring(0, 90)}`,
+        name: titulo.slice(0, 100), 
         message: { content: `📢 **Pregunta de la semana:**\n${pregunta.texto}` }
       });
+
       console.log('✅ Pregunta publicada en foro');
     } else if (canal) {
       await canal.send(`📢 **Pregunta de la semana:**\n${pregunta.texto}`);
